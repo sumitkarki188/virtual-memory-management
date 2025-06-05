@@ -2,6 +2,7 @@ import { ALGORITHMS } from '@/constants/algorithms';
 import { TIMELINE_STEPS } from '@/constants/timeline';
 import { COLORS } from '@/constants/colors';
 import { Icons } from '@/components/common/Icons';
+import { exportMetricsToCSV, exportChart, exportChartBySelector, exportMemoryStatus } from '@/utils/exportUtils';
 
 export default function Controls({
   algorithm,
@@ -26,8 +27,6 @@ export default function Controls({
   timelineSteps,
   currentTimelineIndex,
   navigateTimeline,
-  exportMetricsToCSV,
-  exportChart,
   performanceChartRef,
   memoryChartRef,
   addToLog,
@@ -49,6 +48,72 @@ export default function Controls({
       case 'idle': return <Icons.Play className="ml-2" size={16} />;
       case 'finished': return <Icons.RefreshCw className="ml-2" size={16} />;
       default: return <Icons.Cpu className="ml-2" size={16} />;
+    }
+  };
+
+  const handleExportMetrics = () => {
+    try {
+      console.log('Export metrics clicked', metrics);
+      exportMetricsToCSV(metrics, addToLog);
+    } catch (error) {
+      console.error('Error exporting metrics:', error);
+      if (addToLog) addToLog(`Failed to export metrics: ${error.message}`);
+    }
+  };
+
+  const handleExportPerformanceChart = async () => {
+    try {
+      console.log('Export performance chart clicked', performanceChartRef);
+      
+      // Check if ref exists and has current property
+      if (!performanceChartRef || !performanceChartRef.current) {
+        console.warn('Performance chart ref not available, trying alternative method');
+        // Try to find the performance chart specifically
+        await exportChartBySelector('[data-chart="performance"]', 'performance_chart.png', addToLog, 'performance');
+        return;
+      }
+      
+      await exportChart(performanceChartRef, 'performance_chart.png', addToLog);
+    } catch (error) {
+      console.error('Error exporting performance chart:', error);
+      if (addToLog) addToLog(`Failed to export performance chart: ${error.message}`);
+      
+      // Try fallback method with performance-specific selectors
+      try {
+        console.log('Trying fallback export method for performance chart');
+        await exportChartBySelector('.recharts-wrapper', 'performance_chart.png', addToLog, 'performance');
+      } catch (fallbackError) {
+        console.error('Fallback export also failed:', fallbackError);
+        if (addToLog) addToLog(`All export methods failed for performance chart`);
+      }
+    }
+  };
+
+  const handleExportMemoryChart = async () => {
+    try {
+      console.log('Export memory chart clicked', memoryChartRef);
+      
+      // Check if ref exists and has current property
+      if (!memoryChartRef || !memoryChartRef.current) {
+        console.warn('Memory chart ref not available, trying alternative method');
+        // Try to find the memory section specifically
+        await exportMemoryStatus('memory_status.png', addToLog);
+        return;
+      }
+      
+      await exportChart(memoryChartRef, 'memory_chart.png', addToLog);
+    } catch (error) {
+      console.error('Error exporting memory chart:', error);
+      if (addToLog) addToLog(`Failed to export memory chart: ${error.message}`);
+      
+      // Try fallback method with memory-specific approach
+      try {
+        console.log('Trying fallback export method for memory status');
+        await exportMemoryStatus('memory_status.png', addToLog);
+      } catch (fallbackError) {
+        console.error('Fallback export also failed:', fallbackError);
+        if (addToLog) addToLog(`All export methods failed for memory chart`);
+      }
     }
   };
 
@@ -146,21 +211,21 @@ export default function Controls({
         <div className="flex space-x-2">
           <button
             className={`flex-1 flex items-center justify-center px-4 py-2 ${theme === 'light' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-500 hover:bg-purple-600'} text-white rounded-md`}
-            onClick={() => exportMetricsToCSV(metrics, addToLog)}
+            onClick={handleExportMetrics}
           >
             <Icons.Download className="mr-2" size={16} /> Export Metrics
           </button>
           <button
             className={`flex-1 flex items-center justify-center px-4 py-2 ${theme === 'light' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-500 hover:bg-purple-600'} text-white rounded-md`}
-            onClick={() => exportChart(performanceChartRef, 'performance_chart.png', addToLog)}
+            onClick={handleExportPerformanceChart}
           >
             <Icons.Download className="mr-2" size={16} /> Export Performance Chart
           </button>
           <button
             className={`flex-1 flex items-center justify-center px-4 py-2 ${theme === 'light' ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-500 hover:bg-purple-600'} text-white rounded-md`}
-            onClick={() => exportChart(memoryChartRef, 'memory_chart.png', addToLog)}
+            onClick={handleExportMemoryChart}
           >
-            <Icons.Download className="mr-2" size={16} /> Export Memory Chart
+            <Icons.Download className="mr-2" size={16} /> Export Memory Status
           </button>
         </div>
       </div>
@@ -237,11 +302,11 @@ export default function Controls({
             {timelineSteps.map((step, index) => (
               <div
                 key={index}
-                className={`px-2 py-1 text-xs rounded mx-1 ${index === currentTimelineIndex ? 'font-bold' : ''}`}
-                style={{ backgroundColor: `${TIMELINE_STEPS.find(s => s.id === step).color}30` }}
+                className={`px-2 py-1 text-xs rounded mx-1 cursor-pointer ${index === currentTimelineIndex ? 'font-bold' : ''}`}
+                style={{ backgroundColor: `${TIMELINE_STEPS.find(s => s.id === step)?.color || '#gray'}30` }}
                 onClick={() => navigateTimeline(index)}
               >
-                {TIMELINE_STEPS.find(s => s.id === step).label}
+                {TIMELINE_STEPS.find(s => s.id === step)?.label || step}
               </div>
             ))}
           </div>
