@@ -4,6 +4,8 @@ The system supports   multiple page replacement algorithms and provides analytic
 
 to view the project click the link below 👇👇🧑🏻‍💻🧑🏻‍💻  
 https://sumitkarki188.github.io/React-VirtualMemoryManagement/  
+                      or
+https://encr.pw/Virtual-Memory-Management  
   
 ## 📌 Features  
 
