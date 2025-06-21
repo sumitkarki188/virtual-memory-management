@@ -1,5 +1,7 @@
 🧠 Virtual Memory Manager (VMM) with Paging & TLB Visualizer
-A web-based visual simulator that demonstrates how operating systems handle virtual memory translation using **paging**, **page tables**, and **Translation Lookaside Buffers (TLBs)**. The system supports   multiple page replacement algorithms and provides analytics on TLB hits, page faults, and performance.  
+A web-based visual simulator that demonstrates how operating systems handle virtual memory translation using **paging**, **page tables**, and **Translation Lookaside Buffers (TLBs)**. 
+The system supports   multiple page replacement algorithms and provides analytics on TLB hits, page faults, and performance.  
+
 to view the project click the link below 👇👇🧑🏻‍💻🧑🏻‍💻  
 https://sumitkarki188.github.io/React-VirtualMemoryManagement/  
   
